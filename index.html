@@ -116,7 +116,7 @@
 
       const press = (event, device_id) => {
         socket.send(
-          `{"status": "update", "device_id": ${device_id}, "switch": ${
+          `{"status": "update", "board": "${board}", "device_id": ${device_id}, "switch": ${
             event.checked ? 1 : 0
           }}`
         );
