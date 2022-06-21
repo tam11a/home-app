@@ -34,12 +34,12 @@
       var url = new URL(window.location.href);
       var board = url.searchParams.get("board");
       
-      let socket = new WebSocket("ws://localhost:3000");
+      let socket = new WebSocket("wss:api-home-app.herokuapp.com");
 
       if(board){
   
         socket.onclose = () => {
-          socket = new WebSocket("ws://localhost:3000");
+          socket = new WebSocket("wss://api-home-app.herokuapp.com");
         };
   
         socket.onopen = () => {
