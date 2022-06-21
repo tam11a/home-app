@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>Home Switch</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="stylesheet" href="style.css" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/web-socket-js/1.0.0/web_socket.min.js"
+      integrity="sha512-jtr9/t8rtBf1Sv832XjG1kAtUECQCqFnTAJWccL8CSC82VGzkPPih8rjtOfiiRKgqLXpLA1H/uQ/nq2bkHGWTQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    
+    <main style="display: flex; flex-direction: column; row-gap: 10px">
+      <div style="font-size: 16px; margin-bottom: 30px">
+        Device: <span class="statusHere">Not Connected</span>
+      </div>
+      <input class="l red" type="checkbox" onclick="press(this, 1)" />
+      <input class="l yellow" type="checkbox" onclick="press(this, 2)" />
+      <input class="l green" type="checkbox" onclick="press(this, 3)" />
+      <input class="l neu" type="checkbox" onclick="press(this, 4)" />
+    </main>
+    <script>
+      var url = new URL(window.location.href);
+      var board = url.searchParams.get("board");
+      
+      let socket = new WebSocket("ws://localhost:3000");
+
+      if(board){
+  
+        socket.onclose = () => {
+          socket = new WebSocket("ws://localhost:3000");
+        };
+  
+        socket.onopen = () => {
+          
+          socket.send(`{"status": "connection", "board": "${board}"}`);
+        };
+  
+        socket.onmessage = (message) => {
+          console.log(message.data);
+          try {
+            const data = JSON.parse(message.data);
+            if (data.status === "getState" && data.board === board) {
+              document.querySelector(".statusHere").innerHTML = "Connected";
+              document.querySelector(".l.yellow").checked = !!parseInt(
+                data.switch2
+              );
+              document.querySelector(".l.red").checked = !!parseInt(data.switch1);
+              document.querySelector(".l.green").checked = !!parseInt(
+                data.switch3
+              );
+              document.querySelector(".l.neu").checked = !!parseInt(data.switch4);
+            } else if (data.status === "confirmed" && data.board === board) {
+              if (data.device_id === "2")
+                document.querySelector(".l.yellow").checked = !!parseInt(
+                  data.switch
+                );
+              else if (data.device_id === "1")
+                document.querySelector(".l.red").checked = !!parseInt(
+                  data.switch
+                );
+              else if (data.device_id === "3")
+                document.querySelector(".l.green").checked = !!parseInt(
+                  data.switch
+                );
+              else if (data.device_id === "4")
+                document.querySelector(".l.neu").checked = !!parseInt(
+                  data.switch
+                );
+            }
+          } catch {}
+        };
+      }
+
+
+      const toggleBulb = (id, val) => {
+        const device_id = parseInt(id);
+        // const val = !!parseInt(value);
+        document.querySelector(
+          device_id === 19
+            ? ".l.red"
+            : device_id === 5
+            ? ".l.yellow"
+            : device_id === 22
+            ? ".l.green"
+            : ".l"
+        ).checked = val;
+      };
+
+      const handleEvent = (event) => {
+        let data = {};
+        const FormDataHere = new FormData(event.target);
+        Array.from(FormDataHere.entries()).forEach((e) => {
+          data[e[0]] = e[0].includes("[]")
+            ? FormDataHere.getAll(e[0])
+            : FormDataHere.get(e[0]);
+        });
+        return data;
+      };
+
+      const handleSubmit = (event) => {
+        event.preventDefault();
+        return handleEvent(event);
+      };
+
+      const press = (event, device_id) => {
+        socket.send(
+          `{"status": "update", "device_id": ${device_id}, "switch": ${
+            event.checked ? 1 : 0
+          }}`
+        );
+        event.checked = !event.checked;
+        // console.log(event.checked);
+
+        // socket.send(handleSubmit(event)["msg"]);
+        // document.querySelector("input").value = "";
+      };
+    </script>
+  </body>
+</html>
