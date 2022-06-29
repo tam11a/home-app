@@ -33,13 +33,13 @@
     <script>
       var url = new URL(window.location.href);
       var board = url.searchParams.get("board");
-      
-      let socket = new WebSocket("wss:api-home-app.herokuapp.com");
+      // api-home-app
+      let socket = new WebSocket("wss:home-app-api-v1.herokuapp.com");
 
       if(board){
   
         socket.onclose = () => {
-          socket = new WebSocket("wss://api-home-app.herokuapp.com");
+          socket = new WebSocket("wss://home-app-api-v1.herokuapp.com");
         };
   
         socket.onopen = () => {
