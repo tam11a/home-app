@@ -29,17 +29,18 @@
       <input class="l yellow" type="checkbox" onclick="press(this, 2)" />
       <input class="l green" type="checkbox" onclick="press(this, 3)" />
       <input class="l neu" type="checkbox" onclick="press(this, 4)" />
+      <button style="width: 200px; margin: auto; margin-top: 100px;" onclick="setInterval(auto, 5000)">Auto</button>
     </main>
     <script>
       var url = new URL(window.location.href);
       var board = url.searchParams.get("board");
       
-      let socket = new WebSocket("wss:api-home-app.herokuapp.com");
+      let socket = new WebSocket("ws://home-app-api-v1.herokuapp.com");
 
       if(board){
   
         socket.onclose = () => {
-          socket = new WebSocket("wss://api-home-app.herokuapp.com");
+          socket = new WebSocket("ws://home-app-api-v1.herokuapp.com");
         };
   
         socket.onopen = () => {
@@ -126,6 +127,15 @@
         // socket.send(handleSubmit(event)["msg"]);
         // document.querySelector("input").value = "";
       };
+
+      const auto = () => {
+        document.querySelector('.l.red').click()
+        // document.querySelector('.l.green').click()
+        // document.querySelector('.l.yellow').click()
+        // document.querySelector('.l.neu').click()
+      }
+
+      
     </script>
   </body>
 </html>
